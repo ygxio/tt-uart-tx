@@ -1,20 +1,24 @@
 <!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
+Project datasheet source.
 -->
 
 ## How it works
 
-Explain how your project works
+An 8N1 UART transmitter. A small state machine (IDLE, START, DATA, STOP) holds each bit on the
+line for `CLKS_PER_BIT` clock cycles (87 = 10 MHz clock / 115200 baud). The byte is latched when
+`i_Tx_DV` is pulsed, sent LSB first, and `o_Tx_Done` pulses for one clock after the stop bit.
+The line idles high. `rst_n` (active low) resets the state machine.
 
 ## How to test
 
-Explain how to use your project
+1. Apply a 10 MHz clock and pulse `rst_n` low, then high.
+2. Put a byte on `uio[7:0]`.
+3. Pulse `ui[0]` high for one clock cycle.
+4. Read the serial frame (start bit, 8 data bits LSB first, stop bit) on `uo[0]` at 115200 baud.
+   `uo[1]` pulses high when the frame is finished.
+
+Simulation: `cd test && make` (cocotb + Icarus Verilog).
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+A USB-UART adapter (or any 3.3 V UART receiver) connected to `uo[0]`.
